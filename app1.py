@@ -75,32 +75,34 @@ def main():
         }}
 
         .block-container {{
-            background-color: rgba(0, 0, 0, 0.6);
             padding: 2rem;
-            border-radius: 10px;
+            background-color: rgba(255,255,255, 0.6);
+            border-radius: 12px;
         }}
 
-        h1, h5, label {{
-            color: #ffffff !important;
+        h1, h5, label, .stMarkdown, .css-145kmo2, .css-1v3fvcr p {{
+            color: #000000 !important;
         }}
 
         .stTextInput, .stTextArea, .stSelectbox {{
             background-color: rgba(255, 255, 255, 0.95) !important;
             color: #000 !important;
-            border: 2px solid #555 !important;
-            border-radius: 10px !important;
+            border: 2px solid #222 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 0 6px rgba(0,0,0,0.3);
         }}
 
         .stTextInput > div > input, 
         .stTextArea > div > textarea {{
             color: #000000 !important;
+            font-size: 16px;
         }}
 
         .stButton > button {{
-            background-color: #ffffff;
-            color: #000;
+            background-color: #000;
+            color: #fff;
             font-weight: bold;
-            border: 2px solid #000000;
+            border: none;
             border-radius: 8px;
             padding: 10px 20px;
         }}
