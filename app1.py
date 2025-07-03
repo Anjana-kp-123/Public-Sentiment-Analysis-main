@@ -13,10 +13,12 @@ nltk_data_dir = os.path.join(os.path.expanduser("~"), "nltk_data")
 if not os.path.exists(os.path.join(nltk_data_dir, "corpora/stopwords")):
     nltk.download('stopwords', download_dir=nltk_data_dir)
 
+# Load stopwords
 @st.cache_resource
 def load_stopwords():
     return set(stopwords.words('english'))
 
+# Load model and vectorizer
 @st.cache_resource
 def load_model_and_vectorizer():
     with open('logistic_model.pkl', 'rb') as model_file:
@@ -25,15 +27,18 @@ def load_model_and_vectorizer():
         loaded_vectorizer = pickle.load(vectorizer_file)
     return loaded_model, loaded_vectorizer
 
+# Load dataset
 @st.cache_data
 def load_data():
     return pd.read_csv("Twitter_Data.csv")
 
+# Convert image to base64
 def get_base64_bg(file_path):
     with open(file_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
     return f"data:image/png;base64,{encoded}"
 
+# Preprocess and predict sentiment
 def predict_sentiment(text, model, vectorizer, stop_words):
     text = re.sub(r'^RT[\s]+', '', text)
     text = re.sub(r'http\S+', '', text)
@@ -48,21 +53,26 @@ def predict_sentiment(text, model, vectorizer, stop_words):
     sentiment = model.predict(text_vector)[0]
     return { -1: "Negative", 0: "Neutral", 1: "Positive" }.get(sentiment, "Unknown")
 
+# Display sentiment result
 def create_card(tweet_text, sentiment):
-    color = {"Positive": "#4CAF50", "Neutral": "#666666", "Negative": "#f44336"}.get(sentiment, "#808080")
+    color = {"Positive": "#4CAF50", "Neutral": "#999999", "Negative": "#f44336"}.get(sentiment, "#808080")
     icon = {"Positive": "😊", "Neutral": "😐", "Negative": "😠"}.get(sentiment, "")
     card_html = f"""
-    <div style="background-color: {color}; padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: 2px 2px 10px rgba(0,0,0,0.4);">
-        <h5 style="color: white; font-weight: bold; font-size: 20px; margin-bottom: 10px;">{icon} {sentiment} Sentiment</h5>
+    <div style="background-color: {color}; padding: 16px; border-radius: 10px; margin: 15px 0;">
+        <h5 style="color: white; margin: 0;">{icon} {sentiment} Sentiment</h5>
         <p style="color: white; font-size: 16px;">{tweet_text}</p>
     </div>
     """
     return card_html
 
+# Main App
 def main():
     st.set_page_config(page_title="Sentiment Analyzer", layout="wide")
 
-    bg_image = get_base64_bg("image_n.jpg")
+    # Set background
+    bg_image = get_base64_bg("image_n.jpg")  # Update this if you use another image
+
+    # Transparent inputs, no white shades, adaptive dark text
     st.markdown(
         f"""
         <style>
@@ -70,41 +80,31 @@ def main():
             background-image: url("{bg_image}");
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
             background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', sans-serif;
         }}
 
-        .block-container {{
-            padding: 2rem;
-            background-color: rgba(255,255,255, 0.6);
-            border-radius: 12px;
-        }}
-
-        h1, h5, label, .stMarkdown, .css-145kmo2, .css-1v3fvcr p {{
+        textarea, input[type="text"], div[data-baseweb="select"] {{
+            background-color: transparent !important;
             color: #000000 !important;
+            border: 2px solid #444 !important;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
         }}
 
-        .stTextInput, .stTextArea, .stSelectbox {{
-            background-color: rgba(255, 255, 255, 0.95) !important;
-            color: #000 !important;
-            border: 2px solid #222 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 0 6px rgba(0,0,0,0.3);
-        }}
-
-        .stTextInput > div > input, 
-        .stTextArea > div > textarea {{
-            color: #000000 !important;
-            font-size: 16px;
+        label, p, h1, h2, h3, h4, h5 {{
+            color: #111111 !important;
+            text-shadow: 0px 0px 3px rgba(255,255,255,0.6);
         }}
 
         .stButton > button {{
-            background-color: #000;
-            color: #fff;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
+            background-color: #fff !important;
+            color: #111 !important;
+            border: 1px solid #222 !important;
+            font-weight: 600;
+            border-radius: 6px;
         }}
         </style>
         """,
@@ -113,6 +113,7 @@ def main():
 
     st.title("📊 Public Comment Sentiment Analysis")
 
+    # Load resources
     stop_words = load_stopwords()
     model, vectorizer = load_model_and_vectorizer()
 
