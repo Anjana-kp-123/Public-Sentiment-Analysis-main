@@ -49,13 +49,12 @@ def predict_sentiment(text, model, vectorizer, stop_words):
     return { -1: "Negative", 0: "Neutral", 1: "Positive" }.get(sentiment, "Unknown")
 
 def create_card(tweet_text, sentiment):
-    color = {"Positive": "#28a745", "Neutral": "#6c757d", "Negative": "#dc3545"}.get(sentiment, "#808080")
+    color = {"Positive": "#4CAF50", "Neutral": "#666666", "Negative": "#f44336"}.get(sentiment, "#808080")
     icon = {"Positive": "😊", "Neutral": "😐", "Negative": "😠"}.get(sentiment, "")
     card_html = f"""
-    <div style="background-color: {color}; padding: 18px; border-radius: 12px; 
-                margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-        <h5 style="color: white; margin: 0;">{icon} <b>{sentiment} Sentiment</b></h5>
-        <p style="color: white; font-size: 15px; margin-top: 10px;">{tweet_text}</p>
+    <div style="background-color: {color}; padding: 20px; border-radius: 12px; margin: 20px 0; box-shadow: 2px 2px 10px rgba(0,0,0,0.4);">
+        <h5 style="color: white; font-weight: bold; font-size: 20px; margin-bottom: 10px;">{icon} {sentiment} Sentiment</h5>
+        <p style="color: white; font-size: 16px;">{tweet_text}</p>
     </div>
     """
     return card_html
@@ -63,7 +62,7 @@ def create_card(tweet_text, sentiment):
 def main():
     st.set_page_config(page_title="Sentiment Analyzer", layout="wide")
 
-    bg_image = get_base64_bg("image_n.jpg")  # or use your new one
+    bg_image = get_base64_bg("image_n.jpg")
     st.markdown(
         f"""
         <style>
@@ -71,48 +70,45 @@ def main():
             background-image: url("{bg_image}");
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
             background-attachment: fixed;
+            background-repeat: no-repeat;
         }}
 
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 20px;
-            padding: 2rem 3rem;
-            margin: 2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        }}
-
-        .stTextInput, .stTextArea, .stSelectbox {{
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 2rem;
             border-radius: 10px;
         }}
 
-        .stTextInput > div > input, .stTextArea > div > textarea {{
-            background-color: transparent;
-            color: #000000;
+        h1, h5, label {{
+            color: #ffffff !important;
+        }}
+
+        .stTextInput, .stTextArea, .stSelectbox {{
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: #000 !important;
+            border: 2px solid #555 !important;
+            border-radius: 10px !important;
+        }}
+
+        .stTextInput > div > input, 
+        .stTextArea > div > textarea {{
+            color: #000000 !important;
         }}
 
         .stButton > button {{
-            background-color: #ffffffdd;
-            color: #000000;
+            background-color: #ffffff;
+            color: #000;
+            font-weight: bold;
+            border: 2px solid #000000;
             border-radius: 8px;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }}
-
-        h1, h5, p {{
-            color: #222;
+            padding: 10px 20px;
         }}
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown('<div class="block-container">', unsafe_allow_html=True)
     st.title("📊 Public Comment Sentiment Analysis")
 
     stop_words = load_stopwords()
@@ -121,7 +117,7 @@ def main():
     try:
         df = load_data()
         if 'clean_text' not in df.columns:
-            st.error("Column 'clean_text' not found.")
+            st.error("Column 'clean_text' not found in Twitter_Data.csv.")
             return
 
         tweet_list = df['clean_text'].dropna().unique().tolist()[:1000]
@@ -138,11 +134,9 @@ def main():
             st.markdown(create_card(input_text, sentiment), unsafe_allow_html=True)
 
     except FileNotFoundError:
-        st.warning("🛑 'Twitter_Data.csv' not found.")
+        st.warning("🛑 'Twitter_Data.csv' not found. Please make sure it's in the app folder.")
     except Exception as e:
         st.error(f"Error loading data: {e}")
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
