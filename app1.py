@@ -36,7 +36,7 @@ def load_data():
 def get_base64_bg(file_path):
     with open(file_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    return f"data:image/png;base64,{encoded}"
+    return f"data:image/jpg;base64,{encoded}"
 
 # Preprocess and predict sentiment
 def predict_sentiment(text, model, vectorizer, stop_words):
@@ -69,62 +69,63 @@ def create_card(tweet_text, sentiment):
 def main():
     st.set_page_config(page_title="Sentiment Analyzer", layout="wide")
 
-    # Set background
-    bg_image = get_base64_bg("image_n.jpg")  # Update this if you use another image
-
-    # Transparent inputs, no white shades, adaptive dark text
+    # Add background image from local file
+    bg_image = get_base64_bg("image_n.jpg")
     st.markdown(
         f"""
         <style>
         .stApp {{
             background-image: url("{bg_image}");
-            background-size: cover;
-            background-position: center;
+            background-size: contain;
+            background-position: top center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            font-family: 'Segoe UI', sans-serif;
+            padding-top: 100px;
+            padding-left: 50px;
+            padding-right: 50px;
+            color: #f0f0f0 !important;
         }}
-
-        textarea, input[type="text"], div[data-baseweb="select"] {{
-            background-color: transparent !important;
+        .block-container {{
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }}
+        .stTextInput, .stSelectbox, .stTextArea {{
+            background-color: rgba(255, 255, 255, 0.85);
+            color: black !important;
+            border-radius: 10px;
+        }}
+        .stTextInput > div > input, 
+        .stTextArea > div > textarea {{
             color: #000000 !important;
-            border: 2px solid #444 !important;
-            font-weight: 600;
-            border-radius: 8px;
-            box-shadow: 1px 1px 4px rgba(0,0,0,0.3);
         }}
-
-        label, p, h1, h2, h3, h4, h5 {{
-            color: #111111 !important;
-            text-shadow: 0px 0px 3px rgba(255,255,255,0.6);
-        }}
-
         .stButton > button {{
-            background-color: #fff !important;
-            color: #111 !important;
-            border: 1px solid #222 !important;
-            font-weight: 600;
-            border-radius: 6px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
         }}
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    st.title("📊 Public Comment Sentiment Analysis")
+    st.markdown("<h1 style='color:#222222;'>📊 Public Comment Sentiment Analysis</h1>", unsafe_allow_html=True)
 
-    # Load resources
+    # Load data and models
     stop_words = load_stopwords()
     model, vectorizer = load_model_and_vectorizer()
 
     try:
         df = load_data()
+
         if 'clean_text' not in df.columns:
             st.error("Column 'clean_text' not found in Twitter_Data.csv.")
             return
 
         tweet_list = df['clean_text'].dropna().unique().tolist()[:1000]
 
+        # Form input
         with st.form("sentiment_form"):
             selected_text = st.selectbox("Choose a sample text to analyze", tweet_list)
             st.markdown("Or enter your own text:")
