@@ -69,50 +69,62 @@ def create_card(tweet_text, sentiment):
 def main():
     st.set_page_config(page_title="Sentiment Analyzer", layout="wide")
 
-    # Add background image from local file
+    # Add background image
     bg_image = get_base64_bg("image_n.jpg")
     st.markdown(
         f"""
         <style>
         .stApp {{
             background-image: url("{bg_image}");
-            background-size: contain;
-            background-position: top center;
+            background-size: cover;
+            background-position: center top;
             background-repeat: no-repeat;
             background-attachment: fixed;
             padding-top: 100px;
-            padding-left: 50px;
-            padding-right: 50px;
-            color: #f0f0f0 !important;
         }}
+
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 12px;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 1rem;
         }}
+
         .stTextInput, .stSelectbox, .stTextArea {{
-            background-color: rgba(255, 255, 255, 0.85);
-            color: black !important;
-            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.6);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }}
+
         .stTextInput > div > input, 
         .stTextArea > div > textarea {{
+            background: transparent;
             color: #000000 !important;
         }}
+
         .stButton > button {{
-            background-color: white;
+            background-color: #ffffffcc;
             color: black;
             font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }}
+
+        h1, h5, p {{
+            color: #222 !important;
         }}
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown("<h1 style='color:#222222;'>📊 Public Comment Sentiment Analysis</h1>", unsafe_allow_html=True)
+    st.title("📊 Public Comment Sentiment Analysis")
 
-    # Load data and models
+    # Load model and data
     stop_words = load_stopwords()
     model, vectorizer = load_model_and_vectorizer()
 
@@ -125,7 +137,6 @@ def main():
 
         tweet_list = df['clean_text'].dropna().unique().tolist()[:1000]
 
-        # Form input
         with st.form("sentiment_form"):
             selected_text = st.selectbox("Choose a sample text to analyze", tweet_list)
             st.markdown("Or enter your own text:")
@@ -138,7 +149,7 @@ def main():
             st.markdown(create_card(input_text, sentiment), unsafe_allow_html=True)
 
     except FileNotFoundError:
-        st.warning("🛑 'Twitter_Data.csv' not found. Please make sure it's in the app folder.")
+        st.warning("🛑 'Twitter_Data.csv' not found.")
     except Exception as e:
         st.error(f"Error loading data: {e}")
 
