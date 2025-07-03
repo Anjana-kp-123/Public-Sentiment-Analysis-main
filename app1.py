@@ -13,12 +13,10 @@ nltk_data_dir = os.path.join(os.path.expanduser("~"), "nltk_data")
 if not os.path.exists(os.path.join(nltk_data_dir, "corpora/stopwords")):
     nltk.download('stopwords', download_dir=nltk_data_dir)
 
-# Load stopwords
 @st.cache_resource
 def load_stopwords():
     return set(stopwords.words('english'))
 
-# Load model and vectorizer
 @st.cache_resource
 def load_model_and_vectorizer():
     with open('logistic_model.pkl', 'rb') as model_file:
@@ -27,18 +25,15 @@ def load_model_and_vectorizer():
         loaded_vectorizer = pickle.load(vectorizer_file)
     return loaded_model, loaded_vectorizer
 
-# Load dataset
 @st.cache_data
 def load_data():
     return pd.read_csv("Twitter_Data.csv")
 
-# Convert image to base64
 def get_base64_bg(file_path):
     with open(file_path, "rb") as image_file:
         encoded = base64.b64encode(image_file.read()).decode()
-    return f"data:image/jpg;base64,{encoded}"
+    return f"data:image/png;base64,{encoded}"
 
-# Preprocess and predict sentiment
 def predict_sentiment(text, model, vectorizer, stop_words):
     text = re.sub(r'^RT[\s]+', '', text)
     text = re.sub(r'http\S+', '', text)
@@ -53,86 +48,80 @@ def predict_sentiment(text, model, vectorizer, stop_words):
     sentiment = model.predict(text_vector)[0]
     return { -1: "Negative", 0: "Neutral", 1: "Positive" }.get(sentiment, "Unknown")
 
-# Display sentiment result
 def create_card(tweet_text, sentiment):
-    color = {"Positive": "#4CAF50", "Neutral": "#999999", "Negative": "#f44336"}.get(sentiment, "#808080")
+    color = {"Positive": "#28a745", "Neutral": "#6c757d", "Negative": "#dc3545"}.get(sentiment, "#808080")
     icon = {"Positive": "😊", "Neutral": "😐", "Negative": "😠"}.get(sentiment, "")
     card_html = f"""
-    <div style="background-color: {color}; padding: 16px; border-radius: 10px; margin: 15px 0;">
-        <h5 style="color: white; margin: 0;">{icon} {sentiment} Sentiment</h5>
-        <p style="color: white; font-size: 16px;">{tweet_text}</p>
+    <div style="background-color: {color}; padding: 18px; border-radius: 12px; 
+                margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <h5 style="color: white; margin: 0;">{icon} <b>{sentiment} Sentiment</b></h5>
+        <p style="color: white; font-size: 15px; margin-top: 10px;">{tweet_text}</p>
     </div>
     """
     return card_html
 
-# Main App
 def main():
     st.set_page_config(page_title="Sentiment Analyzer", layout="wide")
 
-    # Add background image
-    bg_image = get_base64_bg("image_n.jpg")
+    bg_image = get_base64_bg("image_n.jpg")  # or use your new one
     st.markdown(
         f"""
         <style>
         .stApp {{
             background-image: url("{bg_image}");
             background-size: cover;
-            background-position: center top;
+            background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            padding-top: 100px;
         }}
 
         .block-container {{
-            background-color: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            margin: 2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
         }}
 
-        .stTextInput, .stSelectbox, .stTextArea {{
+        .stTextInput, .stTextArea, .stSelectbox {{
             background-color: rgba(255, 255, 255, 0.6);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            border-radius: 10px;
         }}
 
-        .stTextInput > div > input, 
-        .stTextArea > div > textarea {{
-            background: transparent;
-            color: #000000 !important;
+        .stTextInput > div > input, .stTextArea > div > textarea {{
+            background-color: transparent;
+            color: #000000;
         }}
 
         .stButton > button {{
-            background-color: #ffffffcc;
-            color: black;
-            font-weight: bold;
+            background-color: #ffffffdd;
+            color: #000000;
             border-radius: 8px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }}
 
         h1, h5, p {{
-            color: #222 !important;
+            color: #222;
         }}
         </style>
         """,
         unsafe_allow_html=True
     )
 
+    st.markdown('<div class="block-container">', unsafe_allow_html=True)
     st.title("📊 Public Comment Sentiment Analysis")
 
-    # Load model and data
     stop_words = load_stopwords()
     model, vectorizer = load_model_and_vectorizer()
 
     try:
         df = load_data()
-
         if 'clean_text' not in df.columns:
-            st.error("Column 'clean_text' not found in Twitter_Data.csv.")
+            st.error("Column 'clean_text' not found.")
             return
 
         tweet_list = df['clean_text'].dropna().unique().tolist()[:1000]
@@ -152,6 +141,8 @@ def main():
         st.warning("🛑 'Twitter_Data.csv' not found.")
     except Exception as e:
         st.error(f"Error loading data: {e}")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
