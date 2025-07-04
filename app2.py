@@ -61,7 +61,7 @@ def create_card(tweet_text, sentiment):
 def main():
     st.set_page_config(page_title="Public Sentiment Analysis", layout="wide")
 
-    bg_image = get_base64_bg("image_n.jpg")
+    bg_image = get_base64_bg("img_bckgd.png")
     st.markdown(
         f"""
         <style>
