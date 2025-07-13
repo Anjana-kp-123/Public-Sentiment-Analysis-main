@@ -1,4 +1,4 @@
-# PolicyPulse: Public Sentiment Analysis Web App
+# PolicyPulse:AI-Based Public Sentiment Analysis Web App
 
 # Abstract
 In today’s digital governance era, understanding public opinion in real-time is
